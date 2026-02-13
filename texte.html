@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Net Storage - Text & Documents</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 40%, #a5f3fc 80%, #a1c4fd 100%);
+      background-size: 300% 300%;
+      animation: gradientFlow 18s ease infinite;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .header {
+      width: 100%;
+      padding: 20px 30px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header h1 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #0ea5e9, #06b6d4, #14b8a6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.25);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 50px;
+      color: #1e293b;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .back-btn:hover {
+      background: rgba(255,255,255,0.4);
+      transform: translateX(-4px);
+    }
+
+    .upload-section {
+      width: 100%;
+      max-width: 900px;
+      margin: 40px auto 50px;
+      padding: 0 20px;
+      text-align: center;
+    }
+
+    .upload-box {
+      background: rgba(255,255,255,0.28);
+      backdrop-filter: blur(16px);
+      border: 2px dashed rgba(14,165,233,0.5);
+      border-radius: 24px;
+      padding: 60px 40px;
+      cursor: pointer;
+      transition: all 0.35s ease;
+    }
+
+    .upload-box:hover {
+      border-color: #0ea5e9;
+      background: rgba(255,255,255,0.38);
+      box-shadow: 0 15px 40px rgba(14,165,233,0.2);
+    }
+
+    .upload-icon {
+      font-size: 4.5rem;
+      color: #0ea5e9;
+      margin-bottom: 20px;
+    }
+
+    .upload-text {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .upload-subtext {
+      color: #475569;
+      font-size: 1.05rem;
+    }
+
+    .docs-grid {
+      width: 100%;
+      max-width: 1100px;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+
+    .doc-card {
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      transition: all 0.4s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .doc-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 50px rgba(14,165,233,0.3);
+    }
+
+    .preview {
+      height: 140px;
+      background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .file-icon {
+      font-size: 5rem;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .type-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .card-info {
+      padding: 16px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .card-meta {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-top: auto;
+    }
+
+    .filters {
+      width: 100%;
+      max-width: 900px;
+      padding: 0 20px 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .search-bar {
+      flex: 1;
+      padding: 14px 20px;
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 50px;
+      background: rgba(255,255,255,0.2);
+      font-size: 1rem;
+      color: #1e293b;
+    }
+
+    .storage-info {
+      width: 100%;
+      max-width: 900px;
+      padding: 20px;
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      text-align: center;
+      margin-bottom: 40px;
+      font-weight: 500;
+      color: #334155;
+    }
+
+    @media (max-width: 768px) {
+      .docs-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+      .header h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <a href="home.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+    <h1>Text & Documents</h1>
+  </header>
+
+  <div class="upload-section">
+    <div class="upload-box">
+      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+      <div class="upload-text">Upload New Text / Document</div>
+      <div class="upload-subtext">Drag & drop or click to browse • TXT, PDF, DOCX, MD supported • Max 50MB per file</div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <input type="text" class="search-bar" placeholder="Search notes, PDFs, docs...">
+    <button style="padding:14px 24px; background:rgba(255,255,255,0.25); border:none; border-radius:50px; font-weight:600; cursor:pointer;">Recent</button>
+    <button style="padding:14px 24px; background:rgba(255,255,255,0.25); border:none; border-radius:50px; font-weight:600; cursor:pointer;">Notes</button>
+    <button style="padding:14px 24px; background:rgba(255,255,255,0.25); border:none; border-radius:50px; font-weight:600; cursor:pointer;">PDFs</button>
+  </div>
+
+  <div class="docs-grid">
+    <!-- Example document cards -->
+    <div class="doc-card">
+      <div class="preview">
+        <i class="fas fa-file-alt file-icon"></i>
+        <div class="type-badge">PDF</div>
+      </div>
+      <div class="card-info">
+        <div class="card-title">Business Plan 2026.pdf</div>
+        <div class="card-meta">Uploaded Feb 10, 2026 • 2.4 MB</div>
+      </div>
+    </div>
+
+    <div class="doc-card">
+      <div class="preview">
+        <i class="fas fa-file-lines file-icon"></i>
+        <div class="type-badge">TXT</div>
+      </div>
+      <div class="card-info">
+        <div class="card-title">Meeting Notes - Team Sync Jan.txt</div>
+        <div class="card-meta">Uploaded Jan 28, 2026 • 48 KB</div>
+      </div>
+    </div>
+
+    <div class="doc-card">
+      <div class="preview">
+        <i class="fas fa-file-word file-icon"></i>
+        <div class="type-badge">DOCX</div>
+      </div>
+      <div class="card-info">
+        <div class="card-title">Project Proposal - Client X.docx</div>
+        <div class="card-meta">Uploaded Feb 5, 2026 • 1.8 MB</div>
+      </div>
+    </div>
+
+    <!-- More cards can be added dynamically -->
+  </div>
+
+  <div class="storage-info">
+    <strong>Documents Storage Used:</strong> 4.9 GB of 50 GB free • <a href="#" style="color:#0ea5e9; text-decoration:none;">Upgrade for more documents & notes</a>
+  </div>
+
+</body>
+</html>

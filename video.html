@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Net Storage - Videos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 40%, #fbc2eb 80%, #a1c4fd 100%);
+      background-size: 300% 300%;
+      animation: gradientFlow 18s ease infinite;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .header {
+      width: 100%;
+      padding: 20px 30px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header h1 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #3b82f6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.25);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 50px;
+      color: #1e293b;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    .back-btn:hover {
+      background: rgba(255,255,255,0.4);
+      transform: translateX(-4px);
+    }
+    .upload-section {
+      width: 100%;
+      max-width: 900px;
+      margin: 40px auto 50px;
+      padding: 0 20px;
+      text-align: center;
+    }
+    .upload-box {
+      background: rgba(255,255,255,0.28);
+      backdrop-filter: blur(16px);
+      border: 2px dashed rgba(59,130,246,0.5);
+      border-radius: 24px;
+      padding: 60px 40px;
+      cursor: pointer;
+      transition: all 0.35s ease;
+    }
+    .upload-box:hover {
+      border-color: #3b82f6;
+      background: rgba(255,255,255,0.38);
+      box-shadow: 0 15px 40px rgba(59,130,246,0.2);
+    }
+    .upload-icon {
+      font-size: 4rem;
+      color: #3b82f6;
+      margin-bottom: 20px;
+    }
+    .upload-text {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .upload-subtext {
+      color: #475569;
+      font-size: 1.05rem;
+    }
+    .videos-grid {
+      width: 100%;
+      max-width: 1100px;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+    .video-card {
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      transition: all 0.4s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .video-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 50px rgba(59,130,246,0.3);
+    }
+    .thumbnail {
+      position: relative;
+      height: 160px;
+      background: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .play-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3.5rem;
+      color: rgba(255,255,255,0.85);
+      opacity: 0.9;
+      transition: all 0.3s;
+    }
+    .video-card:hover .play-overlay {
+      transform: translate(-50%, -50%) scale(1.15);
+    }
+    .duration {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .card-info {
+      padding: 16px;
+    }
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .card-date {
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+    .filters {
+      width: 100%;
+      max-width: 900px;
+      padding: 0 20px 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .search-bar {
+      flex: 1;
+      padding: 14px 20px;
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 50px;
+      background: rgba(255,255,255,0.2);
+      font-size: 1rem;
+      color: #1e293b;
+    }
+    .storage-info {
+      width: 100%;
+      max-width: 900px;
+      padding: 20px;
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      text-align: center;
+      margin-bottom: 40px;
+      font-weight: 500;
+      color: #334155;
+    }
+    @media (max-width: 768px) {
+      .videos-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+      .header h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="home.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+    <h1>Videos</h1>
+  </header>
+  <div class="upload-section">
+    <div class="upload-box">
+      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+      <div class="upload-text">Upload New Video</div>
+      <div class="upload-subtext">Drag & drop or click to browse • MP4, MOV, AVI supported • Max 5GB per file</div>
+    </div>
+  </div>
+  <div class="filters">
+    <input type="text" class="search-bar" placeholder="Search videos...">
+    <button style="padding:14px 24px; background:rgba(255,255,255,0.25); border:none; border-radius:50px; font-weight:600; cursor:pointer;">Newest</button>
+    <button style="padding:14px 24px; background:rgba(255,255,255,0.25); border:none; border-radius:50px; font-weight:600; cursor:pointer;">Oldest</button>
+  </div>
+  <div class="videos-grid">
+    <!-- Example video cards - replace with real data -->
+    <div class="video-card">
+      <div class="thumbnail">
+        <i class="fas fa-play-circle play-overlay"></i>
+        <div class="duration">3:42</div>
+      </div>
+      <div class="card-info">
+        <div class="card-title">Family Vacation 2025 Highlights</div>
+        <div class="card-date">Uploaded Jan 15, 2026</div>
+      </div>
+    </div>
+    <div class="video-card">
+      <div class="thumbnail">
+        <i class="fas fa-play-circle play-overlay"></i>
+        <div class="duration">1:58</div>
+      </div>
+      <div class="card-info">
+        <div class="card-title">Product Demo - Net Storage Features</div>
+        <div class="card-date">Uploaded Feb 2, 2026</div>
+      </div>
+    </div>
+    <div class="video-card">
+      <div class="thumbnail">
+        <i class="fas fa-play-circle play-overlay"></i>
+        <div class="duration">0:45</div>
+      </div>
+      <div class="card-info">
+        <div class="card-title">Quick Travel Vlog - Kigali Sunset</div>
+        <div class="card-date">Uploaded Feb 10, 2026</div>
+      </div>
+    </div>
+    <!-- Add more cards as needed -->
+  </div>
+  <div class="storage-info">
+    <strong>Video Storage Used:</strong> 12.4 GB of 50 GB free • <a href="#" style="color:#3b82f6; text-decoration:none;">Upgrade for more space</a>
+  </div>
+</body>
+</html>

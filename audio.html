@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Net Storage - Audio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 40%, #fbc2eb 80%, #a1c4fd 100%);
+      background-size: 300% 300%;
+      animation: gradientFlow 18s ease infinite;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .header {
+      width: 100%;
+      padding: 20px 30px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header h1 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #8b5cf6, #ec4899, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.25);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 50px;
+      color: #1e293b;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;           /* ← added for clean link appearance */
+    }
+
+    .back-btn:hover {
+      background: rgba(255,255,255,0.4);
+      transform: translateX(-4px);
+    }
+
+    .upload-section {
+      width: 100%;
+      max-width: 900px;
+      margin: 40px auto 50px;
+      padding: 0 20px;
+      text-align: center;
+    }
+
+    .upload-box {
+      background: rgba(255,255,255,0.28);
+      backdrop-filter: blur(16px);
+      border: 2px dashed rgba(139,92,246,0.5);
+      border-radius: 24px;
+      padding: 60px 40px;
+      cursor: pointer;
+      transition: all 0.35s ease;
+    }
+
+    .upload-box:hover {
+      border-color: #8b5cf6;
+      background: rgba(255,255,255,0.38);
+      box-shadow: 0 15px 40px rgba(139,92,246,0.2);
+    }
+
+    .upload-icon {
+      font-size: 4.5rem;
+      color: #8b5cf6;
+      margin-bottom: 20px;
+    }
+
+    .upload-text {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .upload-subtext {
+      color: #475569;
+      font-size: 1.05rem;
+    }
+
+    .audio-grid {
+      width: 100%;
+      max-width: 1100px;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+
+    .audio-card {
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      transition: all 0.4s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .audio-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 50px rgba(139,92,246,0.3);
+    }
+
+    .waveform {
+      position: relative;
+      height: 140px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .play-overlay {
+      font-size: 4rem;
+      color: rgba(255,255,255,0.9);
+      transition: all 0.3s;
+    }
+
+    .audio-card:hover .play-overlay {
+      transform: scale(1.2);
+    }
+
+    .duration {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      background: rgba(0,0,0,0.65);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .card-info {
+      padding: 16px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .card-meta {
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+
+    .filters {
+      width: 100%;
+      max-width: 900px;
+      padding: 0 20px 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .search-bar {
+      flex: 1;
+      padding: 14px 20px;
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 50px;
+      background: rgba(255,255,255,0.2);
+      font-size: 1rem;
+      color: #1e293b;
+    }
+
+    .storage-info {
+      width: 100%;
+      max-width: 900px;
+      padding: 20px;
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      text-align: center;
+      margin-bottom: 40px;
+      font-weight: 500;
+      color: #334155;
+    }
+
+    @media (max-width: 768px) {
+      .audio-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+      .header h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <a href="home.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+    <h1>Audio</h1>
+  </header>
+
+  <div class="upload-section">
+    <div class="upload-box">
+      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+      <div class="upload-text">Upload New Audio</div>
+      <div class="upload-subtext">Drag & drop or click to browse • MP3, WAV, M4A, FLAC supported • Max 2GB per file</div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <input type="text" class="search-bar" placeholder="Search tracks, artists, playlists...">
+    <button style="padding:14px 24px; background:rgba(255,255,255,0.25); border:none; border-radius:50px; font-weight:600; cursor:pointer;">Recent</button>
+    <button style="padding:14px 24px; background:rgba(255,255,255,0.25); border:none; border-radius:50px; font-weight:600; cursor:pointer;">Playlists</button>
+  </div>
+
+  <div class="audio-grid">
+    <!-- Example audio cards - replace with real data -->
+    <div class="audio-card">
+      <div class="waveform">
+        <i class="fas fa-play-circle play-overlay"></i>
+        <div class="duration">4:12</div>
+      </div>
+      <div class="card-info">
+        <div class="card-title">Sunset Vibes Mix 2026</div>
+        <div class="card-meta">Aime • Added Feb 10, 2026</div>
+      </div>
+    </div>
+
+    <div class="audio-card">
+      <div class="waveform">
+        <i class="fas fa-play-circle play-overlay"></i>
+        <div class="duration">3:05</div>
+      </div>
+      <div class="card-info">
+        <div class="card-title">Podcast: Tech in Kigali Ep. 42</div>
+        <div class="card-meta">Rwanda Tech Hub • Added Jan 28, 2026</div>
+      </div>
+    </div>
+
+    <div class="audio-card">
+      <div class="waveform">
+        <i class="fas fa-play-circle play-overlay"></i>
+        <div class="duration">2:48</div>
+      </div>
+      <div class="card-info">
+        <div class="card-title">Afrobeat Groove - New Release</div>
+        <div class="card-meta">Artist Unknown • Added Feb 5, 2026</div>
+      </div>
+    </div>
+
+    <!-- Add more cards as needed -->
+  </div>
+
+  <div class="storage-info">
+    <strong>Audio Storage Used:</strong> 8.7 GB of 50 GB free • <a href="#" style="color:#8b5cf6; text-decoration:none;">Get more space with Premium</a>
+  </div>
+
+</body>
+</html>
