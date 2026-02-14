@@ -163,6 +163,7 @@
       border-radius: 12px;
       font-size: 1.05rem;
       transition: all 0.25s;
+      cursor: pointer;
     }
 
     .menu-list li a:hover {
@@ -262,7 +263,6 @@
     <button class="category-btn" onclick="window.location.href='audio.html'">
       <i class="fas fa-music"></i> Audio
     </button>
-    <!-- Picture button now navigates to picture.html -->
     <button class="category-btn" onclick="window.location.href='picture.html'">
       <i class="fas fa-image"></i> Picture
     </button>
@@ -303,7 +303,12 @@
 
       <li class="divider"></li>
 
-      <li><a href="#" class="logout"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+      <!-- Log Out now redirects to index.html -->
+      <li>
+        <a href="#" class="logout" onclick="if(confirm('Are you sure you want to log out?')) { window.location.href='index.html'; } return false;">
+          <i class="fas fa-sign-out-alt"></i> Log Out
+        </a>
+      </li>
     </ul>
   </div>
 
@@ -340,7 +345,6 @@
 
     menuIcon.addEventListener('click', () => {
       sidebar.classList.add('open');
-      
     });
 
     closeBtn.addEventListener('click', () => {
