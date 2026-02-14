@@ -121,6 +121,27 @@
       font-size: 0.95rem;
       color: #6b7280;
     }
+
+    #message {
+      margin-top: 24px;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 1rem;
+      text-align: center;
+      display: none;
+    }
+
+    .success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+    }
+
+    .error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
   </style>
 </head>
 <body>
@@ -131,7 +152,7 @@
       <p>Find your beauty</p>
     </div>
 
-    <form>
+    <form id="login-form">
       <div class="form-group">
         <label for="netid">NetID</label>
         <input 
@@ -160,15 +181,60 @@
         Submit
       </button>
 
-      <button type="button" class="btn btn-secondary">
+      <button type="button" id="create-account-btn" class="btn btn-secondary">
         Create Account
       </button>
     </form>
+
+    <div id="message"></div>
 
     <div class="footer-text">
       Secure & Private Storage • 2026
     </div>
   </div>
+
+  <script>
+    const form = document.getElementById('login-form');
+    const messageDiv = document.getElementById('message');
+    const createBtn = document.getElementById('create-account-btn');
+
+    // Redirect to create account page when clicking "Create Account"
+    createBtn.addEventListener('click', () => {
+      window.location.href = 'create.html';  // ← change this if your file has a different name
+    });
+
+    // Handle form submit → stay on page + show message
+    form.addEventListener('submit', function(e) {
+      e.preventDefault(); // ← this prevents page reload / navigation
+
+      const netid = document.getElementById('netid').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!netid || !password) {
+        showMessage('Please enter both NetID and password.', 'error');
+        return;
+      }
+
+      // For now just showing success (no real backend)
+      // You can later send data with fetch() / axios here
+      showMessage(`Welcome back, ${netid}! 🎉`, 'success');
+
+      // Optional: clear fields after "login"
+      // form.reset();
+    });
+
+    function showMessage(text, type) {
+      messageDiv.textContent = text;
+      messageDiv.className = '';           // reset
+      messageDiv.classList.add(type);      // success or error
+      messageDiv.style.display = 'block';
+
+      // Auto-hide after 6 seconds
+      setTimeout(() => {
+        messageDiv.style.display = 'none';
+      }, 6000);
+    }
+  </script>
 
 </body>
 </html>
