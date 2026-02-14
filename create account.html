@@ -165,13 +165,25 @@
       display: none;
     }
 
+    .message {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+    }
+
+    .success {
+      color: #059669;
+    }
+
+    .error {
+      color: #dc2626;
+    }
+
     @media (max-width: 500px) {
-      .signup-box {
-        padding: 32px 24px;
-      }
-      .header h1 {
-        font-size: 2.4rem;
-      }
+      .signup-box { padding: 32px 24px; }
+      .header h1 { font-size: 2.4rem; }
     }
   </style>
 </head>
@@ -207,42 +219,95 @@
         </div>
 
         <div class="photo-area">
-          <!-- Upload button is visible at first -->
           <label id="upload-btn" for="photo-input">
-            <i class="fas fa-camera"></i> Upload Photo
+            <i class="fas fa-camera"></i> Upload Photo (required)
           </label>
 
-          <!-- Hidden file input -->
-          <input type="file" id="photo-input" accept="image/*">
+          <input type="file" id="photo-input" accept="image/*" required>
 
-          <!-- Preview + Submit area (hidden until photo is selected) -->
           <div id="preview-container">
             <img id="profile-preview" src="" alt="Profile Preview">
-            <button type="submit" id="submit-btn">Submit</button>
+            <button type="submit" id="submit-btn">Create Account</button>
           </div>
         </div>
+
+        <div class="message error" id="errorMsg"></div>
+        <div class="message success" id="successMsg"></div>
       </form>
     </div>
   </div>
 
   <script>
+    const form = document.getElementById('signup-form');
+    const netid = document.getElementById('netid');
+    const nameInput = document.getElementById('name');
+    const pin = document.getElementById('pin');
+    const confirmPin = document.getElementById('confirm-pin');
     const photoInput = document.getElementById('photo-input');
     const uploadBtn = document.getElementById('upload-btn');
     const previewContainer = document.getElementById('preview-container');
     const profilePreview = document.getElementById('profile-preview');
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
 
+    // Show preview when photo is selected
     photoInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(event) {
           profilePreview.src = event.target.result;
-          uploadBtn.style.display = 'none';           // Hide upload button
-          previewContainer.style.display = 'flex';    // Show photo + submit
+          uploadBtn.style.display = 'none';
+          previewContainer.style.display = 'flex';
         };
         reader.readAsDataURL(file);
       }
     });
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Reset messages
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+
+      // Validation
+      if (!netid.value.trim()) {
+        showError('Please enter your NetID');
+        return;
+      }
+      if (!nameInput.value.trim()) {
+        showError('Please enter your full name');
+        return;
+      }
+      if (!pin.value || pin.value.length < 4) {
+        showError('PIN must be 4-6 digits');
+        return;
+      }
+      if (pin.value !== confirmPin.value) {
+        showError('PINs do not match');
+        return;
+      }
+      if (!photoInput.files || photoInput.files.length === 0) {
+        showError('Please upload a profile photo');
+        return;
+      }
+
+      // All good → show success and redirect
+      successMsg.textContent = 'Account created successfully! Redirecting to verification...';
+      successMsg.style.display = 'block';
+
+      setTimeout(() => {
+        window.location.href = 'verfyed.html'; // ← redirects to verfyed.html
+      }, 1800);
+    });
+
+    function showError(message) {
+      errorMsg.textContent = message;
+      errorMsg.style.display = 'block';
+      setTimeout(() => errorMsg.style.display = 'none', 5000);
+    }
   </script>
 
 </body>
