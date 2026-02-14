@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Net Storage - Verification</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 40%, #fbc2eb 80%, #a1c4fd 100%);
+      background-size: 300% 300%;
+      animation: gradientFlow 18s ease infinite;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      padding: 50px 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      background: linear-gradient(to right, #3b82f6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+
+    p {
+      font-size: 1.15rem;
+      color: #475569;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    .challenge {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .btn {
+      padding: 16px 32px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-correct {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-correct:hover {
+      background: #059669;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(16,185,129,0.4);
+    }
+
+    .btn-wrong {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-wrong:hover {
+      background: #dc2626;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(239,68,68,0.4);
+    }
+
+    .error {
+      color: #dc2626;
+      font-weight: 600;
+      margin: 16px 0;
+      font-size: 1.1rem;
+      display: none;
+    }
+
+    .success {
+      color: #059669;
+      font-weight: 700;
+      font-size: 1.4rem;
+      margin: 20px 0;
+      display: none;
+    }
+
+    .loader {
+      border: 5px solid #e5e7eb;
+      border-top: 5px solid #3b82f6;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+      display: none;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 40px 25px; }
+      h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>One last check</h1>
+    <p>Please prove you're not a robot to continue to Net Storage</p>
+
+    <div class="challenge">
+      <button class="btn btn-wrong" id="wrong1">I'm a robot 🤖</button>
+      <button class="btn btn-correct" id="correct">I'm a human 👋</button>
+      <button class="btn btn-wrong" id="wrong2">Verify me later</button>
+    </div>
+
+    <div class="error" id="errorMsg">Wrong choice or too fast. Try again.</div>
+    <div class="loader" id="loader"></div>
+    <div class="success" id="successMsg">Verification successful! Redirecting...</div>
+  </div>
+
+  <script>
+    let mouseMoved = false;
+    let startTime = Date.now();
+
+    // Detect if user moves mouse (bots usually don't)
+    document.addEventListener('mousemove', () => {
+      mouseMoved = true;
+    }, { once: true });
+
+    const correctBtn = document.getElementById('correct');
+    const wrongBtns = document.querySelectorAll('#wrong1, #wrong2');
+    const errorMsg = document.getElementById('errorMsg');
+    const loader = document.getElementById('loader');
+    const successMsg = document.getElementById('successMsg');
+
+    // Wrong answers → show error
+    wrongBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        errorMsg.style.display = 'block';
+        setTimeout(() => errorMsg.style.display = 'none', 4000);
+      });
+    });
+
+    // Correct answer → verify
+    correctBtn.addEventListener('click', () => {
+      const timeTaken = Date.now() - startTime;
+
+      // Too fast (< 800ms) or no mouse movement → suspicious
+      if (timeTaken < 800 || !mouseMoved) {
+        errorMsg.textContent = "That was too fast or suspicious. Try again.";
+        errorMsg.style.display = 'block';
+        setTimeout(() => errorMsg.style.display = 'none', 5000);
+        return;
+      }
+
+      // Looks good → show loading & redirect
+      loader.style.display = 'block';
+      successMsg.style.display = 'block';
+      correctBtn.disabled = true;
+
+      setTimeout(() => {
+        window.location.href = 'home.html'; // ← change to your dashboard file name
+      }, 1800);
+    });
+  </script>
+
+</body>
+</html>
