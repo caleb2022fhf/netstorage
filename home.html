@@ -11,7 +11,6 @@
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
       background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 40%, #fbc2eb 80%, #a1c4fd 100%);
@@ -23,13 +22,11 @@
       flex-direction: column;
       align-items: center;
     }
-
     @keyframes gradientFlow {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-
     .header {
       width: 100%;
       padding: 25px 40px;
@@ -41,7 +38,6 @@
       top: 0;
       z-index: 10;
     }
-
     .header h1 {
       font-size: 2.6rem;
       font-weight: 800;
@@ -50,7 +46,6 @@
       -webkit-text-fill-color: transparent;
       letter-spacing: 1.5px;
     }
-
     .category-bar {
       width: 100%;
       max-width: 1000px;
@@ -61,7 +56,6 @@
       gap: 18px;
       position: relative;
     }
-
     .category-btn {
       display: flex;
       align-items: center;
@@ -78,13 +72,11 @@
       backdrop-filter: blur(8px);
       box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
-
     .category-btn:hover {
       transform: translateY(-5px) scale(1.05);
       background: rgba(255,255,255,0.4);
       box-shadow: 0 12px 30px rgba(59,130,246,0.25);
     }
-
     .menu-icon {
       font-size: 2rem;
       cursor: pointer;
@@ -92,12 +84,10 @@
       border-radius: 50%;
       transition: all 0.3s;
     }
-
     .menu-icon:hover {
       background: rgba(255,255,255,0.3);
       transform: rotate(90deg);
     }
-
     /* SIDEBAR STYLES */
     .sidebar {
       position: fixed;
@@ -113,11 +103,9 @@
       padding: 25px 20px;
       overflow-y: auto;
     }
-
     .sidebar.open {
       right: 0;
     }
-
     .sidebar-header {
       display: flex;
       align-items: center;
@@ -126,7 +114,6 @@
       margin-bottom: 25px;
       border-bottom: 1px solid rgba(0,0,0,0.12);
     }
-
     .avatar {
       width: 55px;
       height: 55px;
@@ -139,7 +126,6 @@
       font-size: 1.6rem;
       font-weight: bold;
     }
-
     .close-btn {
       margin-left: auto;
       background: none;
@@ -148,11 +134,9 @@
       cursor: pointer;
       color: #475569;
     }
-
     .menu-list {
       list-style: none;
     }
-
     .menu-list li a {
       display: flex;
       align-items: center;
@@ -165,34 +149,28 @@
       transition: all 0.25s;
       cursor: pointer;
     }
-
     .menu-list li a:hover {
       background: rgba(59, 130, 246, 0.12);
       transform: translateX(6px);
     }
-
     .menu-list .divider {
       height: 1px;
       background: rgba(0,0,0,0.08);
       margin: 12px 0;
     }
-
     .upgrade {
       color: #3b82f6;
       font-weight: 700;
     }
-
     .logout {
       color: #ef4444;
     }
-
     .logo-container {
       margin: 50px auto 30px;
       text-align: center;
       max-width: 480px;
       padding: 0 30px;
     }
-
     .logo-container img {
       width: 100%;
       height: auto;
@@ -201,11 +179,9 @@
       transition: transform 0.6s ease;
       border: 2px solid rgba(255,255,255,0.5);
     }
-
     .logo-container img:hover {
       transform: scale(1.08) rotate(3deg);
     }
-
     .stats-teaser {
       max-width: 900px;
       width: 100%;
@@ -215,7 +191,6 @@
       padding: 0 30px 60px;
       text-align: center;
     }
-
     .stat-card {
       background: rgba(255,255,255,0.28);
       backdrop-filter: blur(12px);
@@ -225,23 +200,19 @@
       box-shadow: 0 8px 25px rgba(0,0,0,0.1);
       transition: all 0.3s ease;
     }
-
     .stat-card:hover {
       transform: translateY(-8px);
       box-shadow: 0 15px 40px rgba(59,130,246,0.25);
     }
-
     .stat-card h3 {
       font-size: 1.8rem;
       margin-bottom: 8px;
       color: #3b82f6;
     }
-
     .stat-card p {
       font-size: 1rem;
       color: #475569;
     }
-
     @media (max-width: 768px) {
       .header h1 { font-size: 2.2rem; }
       .category-bar { gap: 12px; padding: 20px; }
@@ -251,11 +222,9 @@
   </style>
 </head>
 <body>
-
   <header class="header">
     <h1>NET STORAGE</h1>
   </header>
-
   <div class="category-bar">
     <button class="category-btn" onclick="window.location.href='video.html'">
       <i class="fas fa-video"></i> Video
@@ -269,9 +238,11 @@
     <button class="category-btn" onclick="window.location.href='texte.html'">
       <i class="fas fa-file-alt"></i> Text
     </button>
+    <button class="category-btn" onclick="window.location.href='game.html'">
+      <i class="fas fa-gamepad"></i> Game
+    </button>
     <div class="menu-icon">≡</div>
   </div>
-
   <!-- SIDEBAR -->
   <div id="sidebar" class="sidebar">
     <div class="sidebar-header">
@@ -282,27 +253,20 @@
       </div>
       <button id="close-menu" class="close-btn">×</button>
     </div>
-
     <ul class="menu-list">
       <li><a href="#"><i class="fas fa-folder-open"></i> My Files</a></li>
       <li><a href="#"><i class="fas fa-clock"></i> Recent</a></li>
       <li><a href="#"><i class="fas fa-star"></i> Favorites</a></li>
       <li><a href="#"><i class="fas fa-share-alt"></i> Shared with Me</a></li>
       <li><a href="#"><i class="fas fa-trash-alt"></i> Trash</a></li>
-
       <li class="divider"></li>
-
       <li><a href="#"><i class="fas fa-upload"></i> Upload</a></li>
       <li><a href="#"><i class="fas fa-folder-plus"></i> New Folder</a></li>
-
       <li class="divider"></li>
-
       <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
       <li><a href="#" class="upgrade"><i class="fas fa-rocket"></i> Upgrade Storage</a></li>
       <li><a href="#"><i class="fas fa-question-circle"></i> Help & Support</a></li>
-
       <li class="divider"></li>
-
       <!-- Log Out now redirects to index.html -->
       <li>
         <a href="#" class="logout" onclick="if(confirm('Are you sure you want to log out?')) { window.location.href='index.html'; } return false;">
@@ -311,14 +275,12 @@
       </li>
     </ul>
   </div>
-
   <div class="logo-container">
-    <img 
-      src="https://thumbs.dreamstime.com/b/glowing-cloud-padlock-icon-surrounded-intricate-electronic-circuits-security-digital-datum-encryption-network-protection-384781487.jpg" 
+    <img
+      src="https://thumbs.dreamstime.com/b/glowing-cloud-padlock-icon-surrounded-intricate-electronic-circuits-security-digital-datum-encryption-network-protection-384781487.jpg"
       alt="Net Storage Logo - Beautiful blue cloud with secure folder and lock"
     />
   </div>
-
   <div class="stats-teaser">
     <div class="stat-card">
       <h3>50 GB Free</h3>
@@ -337,20 +299,16 @@
       <p>Lightning speed with our global network</p>
     </div>
   </div>
-
   <script>
     const menuIcon = document.querySelector('.menu-icon');
     const sidebar = document.getElementById('sidebar');
     const closeBtn = document.getElementById('close-menu');
-
     menuIcon.addEventListener('click', () => {
       sidebar.classList.add('open');
     });
-
     closeBtn.addEventListener('click', () => {
       sidebar.classList.remove('open');
     });
-
     // Close sidebar when clicking outside
     document.addEventListener('click', (e) => {
       if (!sidebar.contains(e.target) && !menuIcon.contains(e.target)) {
@@ -358,6 +316,5 @@
       }
     });
   </script>
-
 </body>
 </html>
