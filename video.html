@@ -205,17 +205,59 @@
       .videos-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
       .header h1 { font-size: 1.8rem; }
     }
+
+    /* ── Added for video playback modal ── */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #000;
+      border-radius: 12px;
+      padding: 12px;
+      max-width: 90%;
+      max-height: 90vh;
+      position: relative;
+    }
+    .modal video {
+      max-width: 100%;
+      max-height: 80vh;
+    }
+    .close-modal {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: #fff;
+      color: #000;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 24px;
+      line-height: 36px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .playback-note {
+      color: #ff6b6b;
+      text-align: center;
+      margin-top: 12px;
+      font-size: 0.95rem;
+    }
   </style>
 </head>
 <body>
-
   <header class="header">
     <a href="home.html" class="back-btn">
       <i class="fas fa-arrow-left"></i> Back to Dashboard
     </a>
     <h1>Videos</h1>
   </header>
-
   <div class="upload-section">
     <div class="upload-box" id="uploadBox">
       <i class="fas fa-cloud-upload-alt upload-icon"></i>
@@ -223,25 +265,36 @@
       <div class="upload-subtext">Drag & drop or click to browse • MP4, MOV, AVI supported • Max 5GB per file</div>
     </div>
   </div>
-
   <div class="filters">
     <input type="text" class="search-bar" placeholder="Search videos...">
     <button style="padding:14px 24px; background:rgba(255,255,255,0.25); border:none; border-radius:50px; font-weight:600; cursor:pointer;">Newest</button>
     <button style="padding:14px 24px; background:rgba(255,255,255,0.25); border:none; border-radius:50px; font-weight:600; cursor:pointer;">Oldest</button>
   </div>
-
   <div class="videos-grid" id="videosGrid">
     <!-- Video cards will be added here -->
   </div>
-
   <div class="storage-info">
     <strong>Video Storage Used:</strong> <span id="storageUsed">0 GB</span> of 50 GB free • <a href="#" style="color:#3b82f6; text-decoration:none;">Upgrade for more space</a>
+  </div>
+
+  <!-- Added: Modal for playing video -->
+  <div id="videoModal" class="modal">
+    <div class="modal-content">
+      <div class="close-modal" id="closeModal">×</div>
+      <video id="videoPlayer" controls autoplay></video>
+      <p id="playbackNote" class="playback-note" style="display:none;">
+        Video playback only works right after upload.<br>After refresh, re-upload the file to play again.
+      </p>
+    </div>
   </div>
 
   <script>
     const uploadBox = document.getElementById('uploadBox');
     const videosGrid = document.getElementById('videosGrid');
     const LOCAL_STORAGE_KEY = 'net-storage-videos';
+
+    // ── Added: for keeping object URLs alive during session ──
+    const activeVideoUrls = new Map(); // filename → objectURL
 
     // Hidden real file input (for click-to-upload)
     const fileInput = document.createElement('input');
@@ -278,6 +331,26 @@
       fileInput.value = ''; // reset so same file can be selected again
     });
 
+    // ── Added: modal controls ──
+    const modal = document.getElementById('videoModal');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const closeModal = document.getElementById('closeModal');
+    const playbackNote = document.getElementById('playbackNote');
+
+    closeModal.addEventListener('click', () => {
+      modal.style.display = 'none';
+      videoPlayer.pause();
+      videoPlayer.src = '';
+    });
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+        videoPlayer.pause();
+        videoPlayer.src = '';
+      }
+    });
+
     // Main handler
     function handleFiles(files) {
       if (!files || files.length === 0) return;
@@ -288,27 +361,26 @@
           return;
         }
 
+        // ── Changed/added: keep object URL for playback ──
+        const videoUrl = URL.createObjectURL(file);
+        activeVideoUrls.set(file.name, videoUrl);
+
         const reader = new FileReader();
         reader.onload = function(e) {
-          const videoUrl = URL.createObjectURL(file);
-
           // Create temporary video element to capture thumbnail
           const tempVideo = document.createElement('video');
           tempVideo.src = videoUrl;
           tempVideo.muted = true;
           tempVideo.preload = 'metadata';
-
           tempVideo.onloadedmetadata = () => {
-            tempVideo.currentTime = Math.min(1, tempVideo.duration || 1); // try 1s in
+            tempVideo.currentTime = Math.min(1, tempVideo.duration || 1);
           };
-
           tempVideo.onseeked = () => {
             const canvas = document.createElement('canvas');
             canvas.width = 320;
             canvas.height = 180;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
-
             const thumbnail = canvas.toDataURL('image/jpeg', 0.7);
 
             const videoData = {
@@ -316,45 +388,40 @@
               size: file.size,
               date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
               thumbnail: thumbnail,
-              // We do NOT store file itself – only preview info
+              duration: tempVideo.duration ? Math.floor(tempVideo.duration) : null
             };
 
             addVideoCard(videoData, videoUrl);
             saveVideoToStorage(videoData);
 
-            // Clean up
-            URL.revokeObjectURL(videoUrl);
+            // Clean up temp video (but keep URL for playback)
             tempVideo.remove();
           };
-
           tempVideo.onerror = () => {
-            // Fallback: no thumbnail
             const videoData = {
               name: file.name,
               size: file.size,
               date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
               thumbnail: null
             };
-            addVideoCard(videoData, null);
+            addVideoCard(videoData, videoUrl);
             saveVideoToStorage(videoData);
           };
         };
 
-        // We don't actually readAsDataURL the whole video – too big
-        // Just need object URL for preview
-        reader.readAsArrayBuffer(file.slice(0, 1)); // tiny read just to trigger flow
+        reader.readAsArrayBuffer(file.slice(0, 1));
       });
     }
 
     function addVideoCard(data, previewUrl = null) {
       const card = document.createElement('div');
       card.className = 'video-card';
-
       let thumbHTML = data.thumbnail
         ? `<img src="${data.thumbnail}" alt="thumbnail">`
         : `<i class="fas fa-play-circle play-overlay"></i>`;
 
-      let durationHTML = previewUrl ? `<div class="duration">New</div>` : '';
+      let durationText = data.duration ? `${Math.floor(data.duration / 60)}:${(data.duration % 60).toString().padStart(2, '0')}` : 'New';
+      let durationHTML = `<div class="duration">${durationText}</div>`;
 
       card.innerHTML = `
         <div class="thumbnail">
@@ -368,20 +435,25 @@
         </div>
       `;
 
-      // If we have preview, attach click to play (demo)
-      if (previewUrl) {
-        card.addEventListener('click', () => {
-          alert(`Playing preview of ${data.name} (actual video only available in this session)`);
-          // In real app → open modal with <video src={previewUrl}>
-        });
-      }
+      // ── Added: click to play video in modal ──
+      card.addEventListener('click', () => {
+        if (previewUrl && activeVideoUrls.has(data.name)) {
+          videoPlayer.src = activeVideoUrls.get(data.name);
+          playbackNote.style.display = 'none';
+        } else {
+          videoPlayer.src = '';
+          playbackNote.style.display = 'block';
+        }
+        modal.style.display = 'flex';
+        videoPlayer.play().catch(() => {}); // autoplay may be blocked
+      });
 
-      videosGrid.prepend(card); // newest first
+      videosGrid.prepend(card);
     }
 
     function saveVideoToStorage(videoData) {
       let videos = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
-      videos.unshift(videoData); // newest first
+      videos.unshift(videoData);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(videos));
     }
 
@@ -389,14 +461,13 @@
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (saved) {
         const videos = JSON.parse(saved);
-        videos.forEach(v => addVideoCard(v, null)); // no live preview after reload
+        videos.forEach(v => addVideoCard(v, null));
       }
     }
 
     // Load on page start
     loadVideosFromStorage();
 
-    // Fake storage used (just example)
     function updateStorageUsed() {
       const videos = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
       const totalMB = videos.reduce((sum, v) => sum + v.size / 1024 / 1024, 0);
@@ -404,6 +475,5 @@
     }
     updateStorageUsed();
   </script>
-
 </body>
 </html>
