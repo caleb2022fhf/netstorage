@@ -131,6 +131,11 @@
       align-items: center;
       justify-content: center;
     }
+    .thumbnail img, .thumbnail video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
     .play-overlay {
       position: absolute;
       top: 50%;
@@ -203,60 +208,202 @@
   </style>
 </head>
 <body>
+
   <header class="header">
     <a href="home.html" class="back-btn">
       <i class="fas fa-arrow-left"></i> Back to Dashboard
     </a>
     <h1>Videos</h1>
   </header>
+
   <div class="upload-section">
-    <div class="upload-box">
+    <div class="upload-box" id="uploadBox">
       <i class="fas fa-cloud-upload-alt upload-icon"></i>
       <div class="upload-text">Upload New Video</div>
       <div class="upload-subtext">Drag & drop or click to browse • MP4, MOV, AVI supported • Max 5GB per file</div>
     </div>
   </div>
+
   <div class="filters">
     <input type="text" class="search-bar" placeholder="Search videos...">
     <button style="padding:14px 24px; background:rgba(255,255,255,0.25); border:none; border-radius:50px; font-weight:600; cursor:pointer;">Newest</button>
     <button style="padding:14px 24px; background:rgba(255,255,255,0.25); border:none; border-radius:50px; font-weight:600; cursor:pointer;">Oldest</button>
   </div>
-  <div class="videos-grid">
-    <!-- Example video cards - replace with real data -->
-    <div class="video-card">
-      <div class="thumbnail">
-        <i class="fas fa-play-circle play-overlay"></i>
-        <div class="duration">3:42</div>
-      </div>
-      <div class="card-info">
-        <div class="card-title">Family Vacation 2025 Highlights</div>
-        <div class="card-date">Uploaded Jan 15, 2026</div>
-      </div>
-    </div>
-    <div class="video-card">
-      <div class="thumbnail">
-        <i class="fas fa-play-circle play-overlay"></i>
-        <div class="duration">1:58</div>
-      </div>
-      <div class="card-info">
-        <div class="card-title">Product Demo - Net Storage Features</div>
-        <div class="card-date">Uploaded Feb 2, 2026</div>
-      </div>
-    </div>
-    <div class="video-card">
-      <div class="thumbnail">
-        <i class="fas fa-play-circle play-overlay"></i>
-        <div class="duration">0:45</div>
-      </div>
-      <div class="card-info">
-        <div class="card-title">Quick Travel Vlog - Kigali Sunset</div>
-        <div class="card-date">Uploaded Feb 10, 2026</div>
-      </div>
-    </div>
-    <!-- Add more cards as needed -->
+
+  <div class="videos-grid" id="videosGrid">
+    <!-- Video cards will be added here -->
   </div>
+
   <div class="storage-info">
-    <strong>Video Storage Used:</strong> 12.4 GB of 50 GB free • <a href="#" style="color:#3b82f6; text-decoration:none;">Upgrade for more space</a>
+    <strong>Video Storage Used:</strong> <span id="storageUsed">0 GB</span> of 50 GB free • <a href="#" style="color:#3b82f6; text-decoration:none;">Upgrade for more space</a>
   </div>
+
+  <script>
+    const uploadBox = document.getElementById('uploadBox');
+    const videosGrid = document.getElementById('videosGrid');
+    const LOCAL_STORAGE_KEY = 'net-storage-videos';
+
+    // Hidden real file input (for click-to-upload)
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'video/mp4,video/quicktime,video/x-msvideo,video/webm';
+    fileInput.multiple = true;
+    fileInput.style.display = 'none';
+    document.body.appendChild(fileInput);
+
+    // Click on box → open file dialog
+    uploadBox.addEventListener('click', () => fileInput.click());
+
+    // Drag & drop visual feedback
+    uploadBox.addEventListener('dragover', e => {
+      e.preventDefault();
+      uploadBox.style.borderColor = '#3b82f6';
+      uploadBox.style.background = 'rgba(59,130,246,0.15)';
+    });
+
+    uploadBox.addEventListener('dragleave', () => {
+      uploadBox.style.borderColor = 'rgba(59,130,246,0.5)';
+      uploadBox.style.background = 'rgba(255,255,255,0.28)';
+    });
+
+    uploadBox.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadBox.style.borderColor = 'rgba(59,130,246,0.5)';
+      uploadBox.style.background = 'rgba(255,255,255,0.28)';
+      handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', () => {
+      handleFiles(fileInput.files);
+      fileInput.value = ''; // reset so same file can be selected again
+    });
+
+    // Main handler
+    function handleFiles(files) {
+      if (!files || files.length === 0) return;
+
+      Array.from(files).forEach(file => {
+        if (!file.type.startsWith('video/')) {
+          alert(`File "${file.name}" is not a video. Only video files are allowed.`);
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const videoUrl = URL.createObjectURL(file);
+
+          // Create temporary video element to capture thumbnail
+          const tempVideo = document.createElement('video');
+          tempVideo.src = videoUrl;
+          tempVideo.muted = true;
+          tempVideo.preload = 'metadata';
+
+          tempVideo.onloadedmetadata = () => {
+            tempVideo.currentTime = Math.min(1, tempVideo.duration || 1); // try 1s in
+          };
+
+          tempVideo.onseeked = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 320;
+            canvas.height = 180;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+
+            const thumbnail = canvas.toDataURL('image/jpeg', 0.7);
+
+            const videoData = {
+              name: file.name,
+              size: file.size,
+              date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+              thumbnail: thumbnail,
+              // We do NOT store file itself – only preview info
+            };
+
+            addVideoCard(videoData, videoUrl);
+            saveVideoToStorage(videoData);
+
+            // Clean up
+            URL.revokeObjectURL(videoUrl);
+            tempVideo.remove();
+          };
+
+          tempVideo.onerror = () => {
+            // Fallback: no thumbnail
+            const videoData = {
+              name: file.name,
+              size: file.size,
+              date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+              thumbnail: null
+            };
+            addVideoCard(videoData, null);
+            saveVideoToStorage(videoData);
+          };
+        };
+
+        // We don't actually readAsDataURL the whole video – too big
+        // Just need object URL for preview
+        reader.readAsArrayBuffer(file.slice(0, 1)); // tiny read just to trigger flow
+      });
+    }
+
+    function addVideoCard(data, previewUrl = null) {
+      const card = document.createElement('div');
+      card.className = 'video-card';
+
+      let thumbHTML = data.thumbnail
+        ? `<img src="${data.thumbnail}" alt="thumbnail">`
+        : `<i class="fas fa-play-circle play-overlay"></i>`;
+
+      let durationHTML = previewUrl ? `<div class="duration">New</div>` : '';
+
+      card.innerHTML = `
+        <div class="thumbnail">
+          ${thumbHTML}
+          <i class="fas fa-play-circle play-overlay"></i>
+          ${durationHTML}
+        </div>
+        <div class="card-info">
+          <div class="card-title">${data.name}</div>
+          <div class="card-date">Uploaded ${data.date} • ${(data.size / 1024 / 1024).toFixed(1)} MB</div>
+        </div>
+      `;
+
+      // If we have preview, attach click to play (demo)
+      if (previewUrl) {
+        card.addEventListener('click', () => {
+          alert(`Playing preview of ${data.name} (actual video only available in this session)`);
+          // In real app → open modal with <video src={previewUrl}>
+        });
+      }
+
+      videosGrid.prepend(card); // newest first
+    }
+
+    function saveVideoToStorage(videoData) {
+      let videos = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+      videos.unshift(videoData); // newest first
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(videos));
+    }
+
+    function loadVideosFromStorage() {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (saved) {
+        const videos = JSON.parse(saved);
+        videos.forEach(v => addVideoCard(v, null)); // no live preview after reload
+      }
+    }
+
+    // Load on page start
+    loadVideosFromStorage();
+
+    // Fake storage used (just example)
+    function updateStorageUsed() {
+      const videos = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+      const totalMB = videos.reduce((sum, v) => sum + v.size / 1024 / 1024, 0);
+      document.getElementById('storageUsed').textContent = `${(totalMB / 1024).toFixed(1)} GB`;
+    }
+    updateStorageUsed();
+  </script>
+
 </body>
 </html>
