@@ -200,12 +200,12 @@
 
     // Redirect to create account page when clicking "Create Account"
     createBtn.addEventListener('click', () => {
-      window.location.href = 'create.html';  // ← change this if your file has a different name
+      window.location.href = 'create.html';
     });
 
     // Handle form submit → stay on page + show message
     form.addEventListener('submit', function(e) {
-      e.preventDefault(); // ← this prevents page reload / navigation
+      e.preventDefault();
 
       const netid = document.getElementById('netid').value.trim();
       const password = document.getElementById('password').value;
@@ -215,25 +215,52 @@
         return;
       }
 
-      // For now just showing success (no real backend)
-      // You can later send data with fetch() / axios here
       showMessage(`Welcome back, ${netid}! 🎉`, 'success');
-
-      // Optional: clear fields after "login"
-      // form.reset();
     });
 
     function showMessage(text, type) {
       messageDiv.textContent = text;
-      messageDiv.className = '';           // reset
-      messageDiv.classList.add(type);      // success or error
+      messageDiv.className = '';
+      messageDiv.classList.add(type);
       messageDiv.style.display = 'block';
 
-      // Auto-hide after 6 seconds
       setTimeout(() => {
         messageDiv.style.display = 'none';
       }, 6000);
     }
+
+    /* ==============================
+       KEYBOARD SHORTCUTS (ADDED)
+       ============================== */
+
+    document.addEventListener('keydown', function(e) {
+
+      // CTRL + ALT + SHIFT + D → Focus NetID
+      if (e.ctrlKey && e.altKey && e.shiftKey && e.key.toLowerCase() === 'd') {
+        e.preventDefault();
+        document.getElementById('netid').focus();
+      }
+
+      // CTRL + ALT + SHIFT + P → Focus Password
+      if (e.ctrlKey && e.altKey && e.shiftKey && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        document.getElementById('password').focus();
+      }
+
+      // CTRL + ALT + SHIFT + L → Login (Submit)
+      if (e.ctrlKey && e.altKey && e.shiftKey && e.key.toLowerCase() === 'l') {
+        e.preventDefault();
+        form.requestSubmit();
+      }
+
+      // CTRL + ALT + SHIFT + C → Create Account
+      if (e.ctrlKey && e.altKey && e.shiftKey && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        createBtn.click();
+      }
+
+    });
+
   </script>
 
 </body>
